@@ -1,9 +1,3 @@
-*.gif
-*.pdf
-*.jpg
-*.mp4
-*.avi
-*.pkl
 *.DS_Store
 __MACOSX
 **/__pycache__/
