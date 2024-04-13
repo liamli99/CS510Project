@@ -23,3 +23,4 @@ vis_planning.py
 debug_*
 /unused/
 *.txt
+.ipynb_checkpoints
