@@ -2,13 +2,6 @@
 __MACOSX
 **/__pycache__/
 *.pyc
-experiments
-tensorboard
-data
-wandb
-output
-outputs
-out.txt
 *.compiled
 out_adv_example.txt
 step_*.vnnlib
@@ -27,12 +20,6 @@ A_plot*
 vis_planning.py
 **/.vscode/
 **/.github/
-/results/
-**.sh
-/data*/
 debug_*
 /unused/
 *.txt
-**/*.pth
-**/*.jpg
-**/*.png
