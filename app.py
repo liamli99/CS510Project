@@ -1,5 +1,6 @@
 import streamlit as st
 import pickle
+import re
 
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
@@ -10,7 +11,7 @@ recipe_list = data['Title'].values
 
 def recommend1(title, df):
     tfidf_vectorizer = TfidfVectorizer()
-    tfidf_matrix = tfidf_vectorizer.fit_transform(df['Title'])
+    tfidf_matrix = tfidf_vectorizer.fit_transform(df['Cleaned_Ingredients'])
     similarity = cosine_similarity(tfidf_matrix)
     
     index = df[df['Title'] == title].index[0]
@@ -22,31 +23,34 @@ def recommend1(title, df):
     
     return recommended_recipes
 
-def recommend2(inputValue, df):
+def recommend2(inputValue1, inputValue2, df):
+    filtered_df = df.copy()
+
+    def not_include(lst, str):
+        return all(ele not in str for ele in lst)
+    
+    if inputValue1 != "":
+        inputValue1_lst = re.split('[, ]+', inputValue1.lower())
+        mask = filtered_df.apply(lambda row: not_include(inputValue1_lst, row['Cleaned_Ingredients']), axis=1)
+        filtered_df = filtered_df[mask]
+        
     tfidf_vectorizer = TfidfVectorizer()
 
-    # Fit the vectorizer on the B attribute and transform both the input text and the text in B
-    all_texts = df['Cleaned_Ingredients'].tolist() + [inputValue]
+    all_texts = filtered_df['Cleaned_Ingredients'].tolist() + [inputValue2]
     tfidf_matrix = tfidf_vectorizer.fit_transform(all_texts)
 
-    # Get the TF-IDF vector for the input text (the last one in the matrix)
     input_vector = tfidf_matrix[-1]
-
-    # Compute cosine similarity between the input vector and all vectors in the matrix (except the last one)
     similarity = cosine_similarity(tfidf_matrix[:-1], input_vector)
 
-    # Flatten the array of similarities, make it part of the dataframe
-    df['Similarity'] = similarity.flatten()
+    filtered_df['Similarity'] = similarity.flatten()
 
-    # Sort the DataFrame by similarity in descending order and select the top 5
-    recommended_list = df.sort_values(by='Similarity', ascending=False).head(5)
+    recommended_list = filtered_df.sort_values(by='Similarity', ascending=False).head(5)
     recommended_recipes = []
     
     for recipes in recommended_list['Title']:
         recommended_recipes.append(recipes)
         
     return recommended_recipes
-
 
 st.header("Recipe Recommendation System")
 
@@ -66,10 +70,11 @@ if st.button("Show Recommended Recipes with Similar Ingredients"):
     with col5:
         st.text(recommended_recipes[4])
 
-inputValue = st.text_input("Enter ingredients you would like to cook with:")
+inputValue1 = st.text_input("Enter ingredients you don't want to cook with:")
+inputValue2 = st.text_input("Enter ingredients you would like to cook with:")
 
 if st.button("Show Recommended Recipes with these Ingredients"):
-    recommended_recipes = recommend2(inputValue, data)
+    recommended_recipes = recommend2(inputValue1, inputValue2, data)
     col1, col2, col3, col4, col5 = st.columns(5)
     with col1:
         st.text(recommended_recipes[0])
