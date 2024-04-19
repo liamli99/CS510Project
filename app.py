@@ -12,7 +12,7 @@ recipe_list = data['Title'].values
 ####################################################################################################
 
 def recommendation_metric(similarity, rating, alpha=0.5, beta=0.5):
-    return alpha * similarity + beta * rating
+    return alpha * similarity + beta * rating / 100
 
 ####################################################################################################
 # Recommendation Function
@@ -25,21 +25,25 @@ def recommend1(title, df):
     
     index = df[df['Title'] == title].index[0]
 
+    df['Similarity'] = similarity[index]
     df['Recommendation_Metric'] = recommendation_metric(similarity[index], df['Rating'])
-    recommended_list = df.sort_values(by='Recommendation_Metric', ascending=False).head(5)
+    recommended_df = df.sort_values(by='Recommendation_Metric', ascending=False).head(5)
     
     recommended_recipes = []
     recommended_recipes_images = []
-    recommended_recipes_ratings = []
+    # recommended_recipes_ratings = []
+    recommended_recipes_stats = []
     
-    for recipes_title in recommended_list['Title']:
+    for recipes_title in recommended_df['Title']:
         recommended_recipes.append(recipes_title)
-    for recipes_image in recommended_list['Image_Name']:
+    for recipes_image in recommended_df['Image_Name']:
         recommended_recipes_images.append('archive/images/' + recipes_image + '.jpg')
-    for recipes_rating in recommended_list['Rating']:
-        recommended_recipes_ratings.append(recipes_rating)
+    # for recipes_rating in recommended_df['Rating']:
+    #     recommended_recipes_ratings.append(recipes_rating)
+    for _, row in recommended_df.iterrows():
+        recommended_recipes_stats.append(str(round(row['Similarity'], 4)) + ' | ' + str(row['Rating']) + ' | ' + str(round(row['Recommendation_Metric'], 4)))
     
-    return recommended_recipes, recommended_recipes_images, recommended_recipes_ratings
+    return recommended_recipes, recommended_recipes_images, recommended_recipes_stats
 
 def recommend2(inputValue1, inputValue2, df):
     filtered_df = df.copy()
@@ -60,21 +64,25 @@ def recommend2(inputValue1, inputValue2, df):
     input_vector = tfidf_matrix[-1]
     similarity = cosine_similarity(tfidf_matrix[:-1], input_vector)
 
+    filtered_df['Similarity'] = similarity
     filtered_df['Recommendation_Metric'] = recommendation_metric(similarity.squeeze(), filtered_df['Rating'])
-    recommended_list = filtered_df.sort_values(by='Recommendation_Metric', ascending=False).head(5)
+    recommended_df = filtered_df.sort_values(by='Recommendation_Metric', ascending=False).head(5)
     
     recommended_recipes = []
     recommended_recipes_images = []
-    recommended_recipes_ratings = []
+    # recommended_recipes_ratings = []
+    recommended_recipes_stats = []
     
-    for recipes_title in recommended_list['Title']:
+    for recipes_title in recommended_df['Title']:
         recommended_recipes.append(recipes_title)
-    for recipes_image in recommended_list['Image_Name']:
+    for recipes_image in recommended_df['Image_Name']:
         recommended_recipes_images.append('archive/images/' + recipes_image + '.jpg')
-    for recipes_rating in recommended_list['Rating']:
-        recommended_recipes_ratings.append(recipes_rating)
+    # for recipes_rating in recommended_df['Rating']:
+    #     recommended_recipes_ratings.append(recipes_rating)
+    for _, row in recommended_df.iterrows():
+        recommended_recipes_stats.append(str(round(row['Similarity'], 4)) + ' | ' + str(row['Rating']) + ' | ' + str(round(row['Recommendation_Metric'], 4)))
         
-    return recommended_recipes, recommended_recipes_images, recommended_recipes_ratings
+    return recommended_recipes, recommended_recipes_images, recommended_recipes_stats
 
 ####################################################################################################
 # Function 1: Show Recommended Recipes with Similar Ingredients
@@ -86,28 +94,28 @@ selectValue1 = st.selectbox("Select a recipe from dropdown:", recipe_list)
 
 if st.button("Show Recommended Recipes with Similar Ingredients"):
     data = pickle.load(open("data.pkl", 'rb'))
-    recommended_recipes, recommended_recipes_images, recommended_recipes_ratings = recommend1(selectValue1, data)
+    recommended_recipes, recommended_recipes_images, recommended_recipes_stats = recommend1(selectValue1, data)
     col1, col2, col3, col4, col5 = st.columns(5)
     with col1:
         st.text(recommended_recipes[0])
         st.image(recommended_recipes_images[0])
-        st.text(recommended_recipes_ratings[0])
+        st.text(recommended_recipes_stats[0])
     with col2:
         st.text(recommended_recipes[1])
         st.image(recommended_recipes_images[1])
-        st.text(recommended_recipes_ratings[1])
+        st.text(recommended_recipes_stats[1])
     with col3:
         st.text(recommended_recipes[2])
         st.image(recommended_recipes_images[2])
-        st.text(recommended_recipes_ratings[2])
+        st.text(recommended_recipes_stats[2])
     with col4:
         st.text(recommended_recipes[3])
         st.image(recommended_recipes_images[3])
-        st.text(recommended_recipes_ratings[3])
+        st.text(recommended_recipes_stats[3])
     with col5:
         st.text(recommended_recipes[4])
         st.image(recommended_recipes_images[4])
-        st.text(recommended_recipes_ratings[4])
+        st.text(recommended_recipes_stats[4])
 
 ####################################################################################################
 # Function 2: Show Recommended Recipes with Given Ingredients
@@ -118,28 +126,28 @@ inputValue2 = st.text_input("Enter ingredients you would like to cook with:")
 
 if st.button("Show Recommended Recipes with Given Ingredients"):
     data = pickle.load(open("data.pkl", 'rb'))
-    recommended_recipes, recommended_recipes_images, recommended_recipes_ratings = recommend2(inputValue1, inputValue2, data)
+    recommended_recipes, recommended_recipes_images, recommended_recipes_stats = recommend2(inputValue1, inputValue2, data)
     col1, col2, col3, col4, col5 = st.columns(5)
     with col1:
         st.text(recommended_recipes[0])
         st.image(recommended_recipes_images[0])
-        st.text(recommended_recipes_ratings[0])
+        st.text(recommended_recipes_stats[0])
     with col2:
         st.text(recommended_recipes[1])
         st.image(recommended_recipes_images[1])
-        st.text(recommended_recipes_ratings[1])
+        st.text(recommended_recipes_stats[1])
     with col3:
         st.text(recommended_recipes[2])
         st.image(recommended_recipes_images[2])
-        st.text(recommended_recipes_ratings[2])
+        st.text(recommended_recipes_stats[2])
     with col4:
         st.text(recommended_recipes[3])
         st.image(recommended_recipes_images[3])
-        st.text(recommended_recipes_ratings[3])
+        st.text(recommended_recipes_stats[3])
     with col5:
         st.text(recommended_recipes[4])
         st.image(recommended_recipes_images[4])
-        st.text(recommended_recipes_ratings[4])
+        st.text(recommended_recipes_stats[4])
 
 ####################################################################################################
 # Function 3: Rate Recipes
