@@ -8,6 +8,13 @@ data = pickle.load(open("data.pkl", 'rb'))
 recipe_list = data['Title'].values
 
 ####################################################################################################
+# Recommendation Metric
+####################################################################################################
+
+def recommendation_metric(similarity, rating, alpha=0.5, beta=0.5):
+    return alpha * similarity + beta * rating
+
+####################################################################################################
 # Recommendation Function
 ####################################################################################################
 
@@ -17,17 +24,22 @@ def recommend1(title, df):
     similarity = cosine_similarity(tfidf_matrix)
     
     index = df[df['Title'] == title].index[0]
-    recommended_list = sorted(list(enumerate(similarity[index])), reverse=True, key=lambda x: x[1])
+
+    df['Recommendation_Metric'] = recommendation_metric(similarity[index], df['Rating'])
+    recommended_list = df.sort_values(by='Recommendation_Metric', ascending=False).head(5)
+    
     recommended_recipes = []
-    recommended_recipes_ratings = []
     recommended_recipes_images = []
+    recommended_recipes_ratings = []
     
-    for i in recommended_list[0:5]:
-        recommended_recipes.append(df.iloc[i[0]].Title)
-        recommended_recipes_ratings.append(df.iloc[i[0]].Rating)
-        recommended_recipes_images.append('archive/images/' + df.iloc[i[0]].Image_Name + '.jpg')
+    for recipes_title in recommended_list['Title']:
+        recommended_recipes.append(recipes_title)
+    for recipes_image in recommended_list['Image_Name']:
+        recommended_recipes_images.append('archive/images/' + recipes_image + '.jpg')
+    for recipes_rating in recommended_list['Rating']:
+        recommended_recipes_ratings.append(recipes_rating)
     
-    return recommended_recipes, recommended_recipes_ratings, recommended_recipes_images
+    return recommended_recipes, recommended_recipes_images, recommended_recipes_ratings
 
 def recommend2(inputValue1, inputValue2, df):
     filtered_df = df.copy()
@@ -48,21 +60,21 @@ def recommend2(inputValue1, inputValue2, df):
     input_vector = tfidf_matrix[-1]
     similarity = cosine_similarity(tfidf_matrix[:-1], input_vector)
 
-    filtered_df['Similarity'] = similarity.flatten()
-
-    recommended_list = filtered_df.sort_values(by='Similarity', ascending=False).head(5)
+    filtered_df['Recommendation_Metric'] = recommendation_metric(similarity.squeeze(), filtered_df['Rating'])
+    recommended_list = filtered_df.sort_values(by='Recommendation_Metric', ascending=False).head(5)
+    
     recommended_recipes = []
-    recommended_recipes_ratings = []
     recommended_recipes_images = []
+    recommended_recipes_ratings = []
     
     for recipes_title in recommended_list['Title']:
         recommended_recipes.append(recipes_title)
-    for recipes_rating in recommended_list['Rating']:
-        recommended_recipes_ratings.append(recipes_rating)
     for recipes_image in recommended_list['Image_Name']:
         recommended_recipes_images.append('archive/images/' + recipes_image + '.jpg')
+    for recipes_rating in recommended_list['Rating']:
+        recommended_recipes_ratings.append(recipes_rating)
         
-    return recommended_recipes, recommended_recipes_ratings, recommended_recipes_images
+    return recommended_recipes, recommended_recipes_images, recommended_recipes_ratings
 
 ####################################################################################################
 # Function 1: Show Recommended Recipes with Similar Ingredients
@@ -74,7 +86,7 @@ selectValue1 = st.selectbox("Select a recipe from dropdown:", recipe_list)
 
 if st.button("Show Recommended Recipes with Similar Ingredients"):
     data = pickle.load(open("data.pkl", 'rb'))
-    recommended_recipes, recommended_recipes_ratings, recommended_recipes_images = recommend1(selectValue1, data)
+    recommended_recipes, recommended_recipes_images, recommended_recipes_ratings = recommend1(selectValue1, data)
     col1, col2, col3, col4, col5 = st.columns(5)
     with col1:
         st.text(recommended_recipes[0])
@@ -106,7 +118,7 @@ inputValue2 = st.text_input("Enter ingredients you would like to cook with:")
 
 if st.button("Show Recommended Recipes with Given Ingredients"):
     data = pickle.load(open("data.pkl", 'rb'))
-    recommended_recipes, recommended_recipes_ratings, recommended_recipes_images = recommend2(inputValue1, inputValue2, data)
+    recommended_recipes, recommended_recipes_images, recommended_recipes_ratings = recommend2(inputValue1, inputValue2, data)
     col1, col2, col3, col4, col5 = st.columns(5)
     with col1:
         st.text(recommended_recipes[0])
@@ -134,7 +146,7 @@ if st.button("Show Recommended Recipes with Given Ingredients"):
 ####################################################################################################
 
 selectValue2 = st.selectbox("Select a recipe to rate:", recipe_list)
-user_rating = st.slider("Rate this recipe (1-5 stars):", 1, 5, 3)
+user_rating = st.slider("Rate this recipe:", 1, 100, 50)
 
 def update_rating(title, rating, df):
     df.at[df[df['Title'] == title].index[0], 'Rating'] = rating
