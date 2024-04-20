@@ -1,6 +1,7 @@
 import streamlit as st
 import pickle
 import re
+import requests
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
@@ -164,3 +165,46 @@ if st.button("Submit Rating"):
     data = pickle.load(open("data.pkl", 'rb'))
     update_rating(selectValue2, user_rating, data)
     st.success("Thank you for rating!")
+    
+####################################################################################################
+# Function 4: Natural Languages Handle
+####################################################################################################
+def query(payload):
+    try:
+        response = requests.post(API_URL, headers=headers, json=payload)
+        response.raise_for_status()  
+        return response.text  
+    except requests.exceptions.RequestException as e:
+        print("Error:", e)
+        return None  
+ 
+inputValue3 = st.text_input("Enter natural query to describe what Ingredients you have and what receipt you like")
+if st.button("Submit your natural query"):
+    data = pickle.load(open("data.pkl", 'rb'))
+    API_URL = "https://api-inference.huggingface.co/models/ilsilfverskiold/tech-keywords-extractor"
+    headers = {"Authorization": "Bearer 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"}
+    output = query(inputValue3)
+    recommended_recipes, recommended_recipes_images, recommended_recipes_stats = recommend2("", output, data)
+    col1, col2, col3, col4, col5 = st.columns(5)
+    with col1:
+        st.text(recommended_recipes[0])
+        st.image(recommended_recipes_images[0])
+        st.text(recommended_recipes_stats[0])
+    with col2:
+        st.text(recommended_recipes[1])
+        st.image(recommended_recipes_images[1])
+        st.text(recommended_recipes_stats[1])
+    with col3:
+        st.text(recommended_recipes[2])
+        st.image(recommended_recipes_images[2])
+        st.text(recommended_recipes_stats[2])
+    with col4:
+        st.text(recommended_recipes[3])
+        st.image(recommended_recipes_images[3])
+        st.text(recommended_recipes_stats[3])
+    with col5:
+        st.text(recommended_recipes[4])
+        st.image(recommended_recipes_images[4])
+        st.text(recommended_recipes_stats[4])
+        
+        
