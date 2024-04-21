@@ -34,9 +34,12 @@ def recommend1(title, df):
     recommended_recipes_images = []
     # recommended_recipes_ratings = []
     recommended_recipes_stats = []
+    recommended_recipes_intro =[]
     
     for recipes_title in recommended_df['Title']:
         recommended_recipes.append(recipes_title)
+    for recipes_intro in recommended_df['Instructions']:
+        recommended_recipes_intro.append(recipes_intro)
     for recipes_image in recommended_df['Image_Name']:
         recommended_recipes_images.append('archive/images/' + recipes_image + '.jpg')
     # for recipes_rating in recommended_df['Rating']:
@@ -44,7 +47,7 @@ def recommend1(title, df):
     for _, row in recommended_df.iterrows():
         recommended_recipes_stats.append(str(round(row['Similarity'], 4)) + ' | ' + str(row['Rating']) + ' | ' + str(round(row['Recommendation_Metric'], 4)))
     
-    return recommended_recipes, recommended_recipes_images, recommended_recipes_stats
+    return recommended_recipes, recommended_recipes_images, recommended_recipes_stats, recommended_recipes_intro
 
 def recommend2(inputValue1, inputValue2, df):
     filtered_df = df.copy()
@@ -73,7 +76,10 @@ def recommend2(inputValue1, inputValue2, df):
     recommended_recipes_images = []
     # recommended_recipes_ratings = []
     recommended_recipes_stats = []
-    
+    recommended_recipes_intro =[]
+
+    for recipes_intro in recommended_df['Instructions']:
+        recommended_recipes_intro.append(recipes_intro)
     for recipes_title in recommended_df['Title']:
         recommended_recipes.append(recipes_title)
     for recipes_image in recommended_df['Image_Name']:
@@ -83,92 +89,59 @@ def recommend2(inputValue1, inputValue2, df):
     for _, row in recommended_df.iterrows():
         recommended_recipes_stats.append(str(round(row['Similarity'], 4)) + ' | ' + str(row['Rating']) + ' | ' + str(round(row['Recommendation_Metric'], 4)))
         
-    return recommended_recipes, recommended_recipes_images, recommended_recipes_stats
+    return recommended_recipes, recommended_recipes_images, recommended_recipes_stats, recommended_recipes_intro
+
 
 ####################################################################################################
 # Function 1: Show Recommended Recipes with Similar Ingredients
 ####################################################################################################
 
 st.header("Recipe Recommendation System")
-
-selectValue1 = st.selectbox("Select a recipe from dropdown:", recipe_list)
-
-if st.button("Show Recommended Recipes with Similar Ingredients"):
-    data = pickle.load(open("data.pkl", 'rb'))
-    recommended_recipes, recommended_recipes_images, recommended_recipes_stats = recommend1(selectValue1, data)
-    col1, col2, col3, col4, col5 = st.columns(5)
-    with col1:
-        st.text(recommended_recipes[0])
-        st.image(recommended_recipes_images[0])
-        st.text(recommended_recipes_stats[0])
-    with col2:
-        st.text(recommended_recipes[1])
-        st.image(recommended_recipes_images[1])
-        st.text(recommended_recipes_stats[1])
-    with col3:
-        st.text(recommended_recipes[2])
-        st.image(recommended_recipes_images[2])
-        st.text(recommended_recipes_stats[2])
-    with col4:
-        st.text(recommended_recipes[3])
-        st.image(recommended_recipes_images[3])
-        st.text(recommended_recipes_stats[3])
-    with col5:
-        st.text(recommended_recipes[4])
-        st.image(recommended_recipes_images[4])
-        st.text(recommended_recipes_stats[4])
-
+with st.container():
+    selectValue1 = st.selectbox("Select a recipe from dropdown:", recipe_list)
+    if st.button("Show Recommended Recipes with Similar Ingredients"):
+        data = pickle.load(open("data.pkl", 'rb'))
+        recommended_recipes, recommended_recipes_images, recommended_recipes_stats,recommended_recipes_intro  = recommend1(selectValue1, data)
+        for i in range(len(recommended_recipes)):
+            col1, col2 = st.columns([1, 3])
+            
+            with col1:
+                st.image(recommended_recipes_images[i])
+            
+            with col2:
+                with st.expander(recommended_recipes[i]):
+                    st.image(recommended_recipes_images[i])
+                    st.text(recommended_recipes_stats[i])
+                    st.markdown("### Receipt Intro")
+                    st.write(recommended_recipes_intro[i])
+st.markdown("---")
 ####################################################################################################
 # Function 2: Show Recommended Recipes with Given Ingredients
 ####################################################################################################
+with st.container():
+    inputValue1 = st.text_input("Enter ingredients you don't want to cook with:")
+    inputValue2 = st.text_input("Enter ingredients you would like to cook with:")
 
-inputValue1 = st.text_input("Enter ingredients you don't want to cook with:")
-inputValue2 = st.text_input("Enter ingredients you would like to cook with:")
-
-if st.button("Show Recommended Recipes with Given Ingredients"):
-    data = pickle.load(open("data.pkl", 'rb'))
-    recommended_recipes, recommended_recipes_images, recommended_recipes_stats = recommend2(inputValue1, inputValue2, data)
-    col1, col2, col3, col4, col5 = st.columns(5)
-    with col1:
-        st.text(recommended_recipes[0])
-        st.image(recommended_recipes_images[0])
-        st.text(recommended_recipes_stats[0])
-    with col2:
-        st.text(recommended_recipes[1])
-        st.image(recommended_recipes_images[1])
-        st.text(recommended_recipes_stats[1])
-    with col3:
-        st.text(recommended_recipes[2])
-        st.image(recommended_recipes_images[2])
-        st.text(recommended_recipes_stats[2])
-    with col4:
-        st.text(recommended_recipes[3])
-        st.image(recommended_recipes_images[3])
-        st.text(recommended_recipes_stats[3])
-    with col5:
-        st.text(recommended_recipes[4])
-        st.image(recommended_recipes_images[4])
-        st.text(recommended_recipes_stats[4])
-
+    if st.button("Show Recommended Recipes with Given Ingredients"):
+        data = pickle.load(open("data.pkl", 'rb'))
+        recommended_recipes, recommended_recipes_images, recommended_recipes_stats,recommended_recipes_intro  = recommend2(selectValue1,inputValue2, data)
+        for i in range(len(recommended_recipes)):
+            col1, col2 = st.columns([1, 3])
+            
+            with col1:
+                st.image(recommended_recipes_images[i])
+            
+            with col2:
+                with st.expander(recommended_recipes[i]):
+                    st.image(recommended_recipes_images[i])
+                    st.text(recommended_recipes_stats[i])
+                    st.markdown("### Receipt Intro")
+                    st.write(recommended_recipes_intro[i])
+st.markdown("---")                
 ####################################################################################################
-# Function 3: Rate Recipes
+# Function 3: Natural Languages Handle
 ####################################################################################################
 
-selectValue2 = st.selectbox("Select a recipe to rate:", recipe_list)
-user_rating = st.slider("Rate this recipe:", 1, 100, 50)
-
-def update_rating(title, rating, df):
-    df.at[df[df['Title'] == title].index[0], 'Rating'] = rating
-    df.to_pickle("data.pkl")
-
-if st.button("Submit Rating"):
-    data = pickle.load(open("data.pkl", 'rb'))
-    update_rating(selectValue2, user_rating, data)
-    st.success("Thank you for rating!")
-    
-####################################################################################################
-# Function 4: Natural Languages Handle
-####################################################################################################
 def query(payload):
     try:
         response = requests.post(API_URL, headers=headers, json=payload)
@@ -177,34 +150,41 @@ def query(payload):
     except requests.exceptions.RequestException as e:
         print("Error:", e)
         return None  
- 
-inputValue3 = st.text_input("Enter natural query to describe what Ingredients you have and what receipt you like")
-if st.button("Submit your natural query"):
-    data = pickle.load(open("data.pkl", 'rb'))
-    API_URL = "https://api-inference.huggingface.co/models/ilsilfverskiold/tech-keywords-extractor"
-    headers = {"Authorization": "Bearer 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"}
-    output = query(inputValue3)
-    recommended_recipes, recommended_recipes_images, recommended_recipes_stats = recommend2("", output, data)
-    col1, col2, col3, col4, col5 = st.columns(5)
-    with col1:
-        st.text(recommended_recipes[0])
-        st.image(recommended_recipes_images[0])
-        st.text(recommended_recipes_stats[0])
-    with col2:
-        st.text(recommended_recipes[1])
-        st.image(recommended_recipes_images[1])
-        st.text(recommended_recipes_stats[1])
-    with col3:
-        st.text(recommended_recipes[2])
-        st.image(recommended_recipes_images[2])
-        st.text(recommended_recipes_stats[2])
-    with col4:
-        st.text(recommended_recipes[3])
-        st.image(recommended_recipes_images[3])
-        st.text(recommended_recipes_stats[3])
-    with col5:
-        st.text(recommended_recipes[4])
-        st.image(recommended_recipes_images[4])
-        st.text(recommended_recipes_stats[4])
-        
-        
+    
+with st.container():
+    inputValue3 = st.text_input("Enter natural query to describe what Ingredients you have and what receipt you like")
+    if st.button("Submit your natural query"):
+        data = pickle.load(open("data.pkl", 'rb'))
+        API_URL = "https://api-inference.huggingface.co/models/ilsilfverskiold/tech-keywords-extractor"
+        headers = {"Authorization": "Bearer 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"}
+        output = query(inputValue3)
+        recommended_recipes, recommended_recipes_images, recommended_recipes_stats,recommended_recipes_intro  = recommend2( "", inputValue3, data)
+        for i in range(len(recommended_recipes)):
+            col1, col2 = st.columns([1, 3])
+            
+            with col1:
+                st.image(recommended_recipes_images[i])
+            
+            with col2:
+                with st.expander(recommended_recipes[i]):
+                    st.image(recommended_recipes_images[i])
+                    st.text(recommended_recipes_stats[i])
+                    st.markdown("### Receipt Intro")
+                    st.write(recommended_recipes_intro[i])
+st.markdown("---")  
+####################################################################################################
+# Function 4: Rate Recipes
+####################################################################################################
+with st.container():
+    selectValue2 = st.selectbox("Select a recipe to rate:", recipe_list)
+    user_rating = st.slider("Rate this recipe:", 1, 100, 50)
+
+    def update_rating(title, rating, df):
+        df.at[df[df['Title'] == title].index[0], 'Rating'] = rating
+        df.to_pickle("data.pkl")
+
+    if st.button("Submit Rating"):
+        data = pickle.load(open("data.pkl", 'rb'))
+        update_rating(selectValue2, user_rating, data)
+        st.success("Thank you for rating!")
+    
