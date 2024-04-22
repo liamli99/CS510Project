@@ -75,6 +75,7 @@ def query(payload):
     
 with st.container():
     inputValue3 = st.text_input("Enter natural query to describe what Ingredients you have and what receipt you like")
+    
     if st.button("Submit your natural query"):
         data = pickle.load(open("data.pkl", 'rb'))
         API_URL = "https://api-inference.huggingface.co/models/ilsilfverskiold/tech-keywords-extractor"
