@@ -1,20 +1,14 @@
-import re
-
 import numpy as np
 import torch
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.metrics.pairwise import cosine_similarity
+
 from rank_bm25 import BM25Okapi
-from sklearn.metrics import jaccard_score
-from sklearn.preprocessing import MultiLabelBinarizer
 from gensim.models import Word2Vec
 from transformers import BertTokenizer, BertModel
 
+from sklearn.metrics.pairwise import cosine_similarity
+
 # BM25
-def recommand1_BM25_lengthNormalization(title, df):
-  # print("Column names:", df.columns.tolist())
-
-
+def recommand1_BM25(title, df):
   tokenized_titles = [title.split() for title in df['Title']]
   bm25 = BM25Okapi(tokenized_titles)
 
@@ -33,30 +27,8 @@ def recommand1_BM25_lengthNormalization(title, df):
 
   return recommended_recipes
 
-def recommend_jaccard(title, df):
-
-    tokenized_titles = [set(title.lower().split()) for title in df['Title']]
-    mlb = MultiLabelBinarizer()
-    title_vectors = mlb.fit_transform(tokenized_titles)
-
-
-    index = df[df['Title'] == title].index[0]
-    query_vector = title_vectors[index]
-
-    similarities = [jaccard_score(query_vector, title_vector, average='binary') for title_vector in title_vectors]
-
-    df['Similarity'] = similarities
-    recommended_df = df.sort_values(by='Similarity', ascending=False).head(5)
-    recommended_recipes = [recipe for recipe in recommended_df['Title']]
-
-    return recommended_recipes
-
-
 def recommend_word2Vec(title, df):
-
-
     tokenized_titles = [title.lower().split() for title in df['Title']]
-
     model = Word2Vec(sentences=tokenized_titles, vector_size=100, window=5, min_count=1, workers=4)
 
     def document_vector(doc):
@@ -83,7 +55,6 @@ def recommend_word2Vec(title, df):
     return recommended_recipes
 
 
-
 def get_bert_embeddings(texts, batch_size=10):
     tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
     model = BertModel.from_pretrained('bert-base-uncased')
@@ -102,8 +73,6 @@ def get_bert_embeddings(texts, batch_size=10):
             embeddings.append(batch_embeddings)
     return np.vstack(embeddings)
 def recommend_bert(title, df):
-    print("Column names:", df.columns.tolist())
-
     # Compute BERT embeddings for all titles including the query title
     embeddings = get_bert_embeddings(df['Title'].tolist())
 
