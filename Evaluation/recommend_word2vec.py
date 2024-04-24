@@ -4,11 +4,12 @@ from gensim.models import Word2Vec
 def recommendation_metric(similarity, rating, alpha=0.5, beta=0.5):
     return alpha * similarity + beta * rating / 100
 
-# https://pypi.org/project/rank-bm25/
+# https://radimrehurek.com/gensim/models/word2vec.html
 
 def recommend1_word2vec(title, df):
     tokenized_titles = [title.split() for title in df['Title']]
-    bm25 = BM25Okapi(tokenized_titles)
+    # Tune the parameters?
+    model = Word2Vec(sentences=tokenized_titles, vector_size=100, window=5, min_count=1, workers=4)
     
     index = df[df['Title'] == title].index[0]
     

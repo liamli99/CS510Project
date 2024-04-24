@@ -36,7 +36,6 @@ def recommend1_word2Vec(title, df):
 
     doc_vectors = np.array([document_vector(doc) for doc in tokenized_titles])
 
-
     index = df[df['Title'] == title].index[0]
     query_vector = document_vector(tokenized_titles[index])
 
