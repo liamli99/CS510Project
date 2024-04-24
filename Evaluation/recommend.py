@@ -14,7 +14,6 @@ def recommand1_BM25(title, df):
 
   index = df[df['Title'] == title].index[0]
   query = tokenized_titles[index]
-
   scores = bm25.get_scores(query)
 
   df['Similarity'] = scores
@@ -27,7 +26,7 @@ def recommand1_BM25(title, df):
 
   return recommended_recipes
 
-def recommend_word2Vec(title, df):
+def recommend1_word2Vec(title, df):
     tokenized_titles = [title.lower().split() for title in df['Title']]
     model = Word2Vec(sentences=tokenized_titles, vector_size=100, window=5, min_count=1, workers=4)
 
@@ -54,7 +53,6 @@ def recommend_word2Vec(title, df):
 
     return recommended_recipes
 
-
 def get_bert_embeddings(texts, batch_size=10):
     tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
     model = BertModel.from_pretrained('bert-base-uncased')
@@ -72,7 +70,7 @@ def get_bert_embeddings(texts, batch_size=10):
             batch_embeddings = outputs.pooler_output.squeeze().to('cpu').numpy()
             embeddings.append(batch_embeddings)
     return np.vstack(embeddings)
-def recommend_bert(title, df):
+def recommend1_bert(title, df):
     # Compute BERT embeddings for all titles including the query title
     embeddings = get_bert_embeddings(df['Title'].tolist())
 
