@@ -3,7 +3,7 @@ import pickle
 
 from recommend_bm25 import recommend1_bm25, recommend2_bm25
 from recommend_word2vec import recommend1_word2vec, recommend2_word2vec
-
+from recommend_bert import recommend1_bert, recommend2_bert
 
 data = pickle.load(open("data.pkl", 'rb'))
 recipe_list = data['Title'].values
@@ -19,8 +19,10 @@ with st.container():
     
     if st.button("Show Recommended Recipes with Similar Titles"):
         data = pickle.load(open("data.pkl", 'rb'))
-        recommended_recipes_titles, recommended_recipes_images, recommended_recipes_stats, recommended_recipes_instructions  = recommend1_bm25(selectValue1, data)
-        
+        # recommended_recipes_titles, recommended_recipes_images, recommended_recipes_stats, recommended_recipes_instructions  = recommend1_bm25(selectValue1, data)
+        # recommended_recipes_titles, recommended_recipes_images, recommended_recipes_stats, recommended_recipes_instructions  = recommend1_word2vec(selectValue1, data)
+        recommended_recipes_titles, recommended_recipes_images, recommended_recipes_stats, recommended_recipes_instructions  = recommend1_bert(selectValue1, data)
+
         for i in range(len(recommended_recipes_titles)):
             col1, col2 = st.columns([1, 3])
             
@@ -45,8 +47,10 @@ with st.container():
 
     if st.button("Show Recommended Recipes with Given Ingredients"):
         data = pickle.load(open("data.pkl", 'rb'))
-        recommended_recipes_titles, recommended_recipes_images, recommended_recipes_stats,recommended_recipes_instructions  = recommend2_bm25(inputValue1, inputValue2, data)
-        
+        # recommended_recipes_titles, recommended_recipes_images, recommended_recipes_stats,recommended_recipes_instructions  = recommend2_bm25(inputValue1, inputValue2, data)
+        # recommended_recipes_titles, recommended_recipes_images, recommended_recipes_stats,recommended_recipes_instructions  = recommend2_word2vec(inputValue1, inputValue2, data)
+        recommended_recipes_titles, recommended_recipes_images, recommended_recipes_stats,recommended_recipes_instructions  = recommend2_bert(inputValue1, inputValue2, data)
+
         for i in range(len(recommended_recipes_titles)):
             col1, col2 = st.columns([1, 3])
             

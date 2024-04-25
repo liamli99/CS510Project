@@ -16,7 +16,7 @@ def recommend1_bm25(title, df):
     scores = bm25.get_scores(tokenized_query)
 
     df['Similarity'] = scores
-    df['Recommendation_Metric'] = recommendation_metric(scores, df['Rating'])
+    df['Recommendation_Metric'] = recommendation_metric(df['Similarity'], df['Rating'])
     recommended_df = df.sort_values(by='Recommendation_Metric', ascending=False).head(5)
     
     recommended_recipes_titles = []
@@ -57,7 +57,7 @@ def recommend2_bm25(inputValue1, inputValue2, df):
     scores = bm25.get_scores(tokenized_query)
 
     filtered_df['Similarity'] = scores
-    filtered_df['Recommendation_Metric'] = recommendation_metric(scores, filtered_df['Rating'])
+    filtered_df['Recommendation_Metric'] = recommendation_metric(filtered_df['Similarity'], filtered_df['Rating'])
     recommended_df = filtered_df.sort_values(by='Recommendation_Metric', ascending=False).head(5)
     
     recommended_recipes_titles = []

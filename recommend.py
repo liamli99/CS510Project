@@ -24,7 +24,7 @@ def recommend1(title, df):
     similarity = cosine_similarity(tfidf_matrix, input_vector)
 
     df['Similarity'] = similarity
-    df['Recommendation_Metric'] = recommendation_metric(similarity.squeeze(), df['Rating'])
+    df['Recommendation_Metric'] = recommendation_metric(df['Similarity'], df['Rating'])
     recommended_df = df.sort_values(by='Recommendation_Metric', ascending=False).head(5)
     
     recommended_recipes_titles = []
@@ -65,7 +65,7 @@ def recommend2(inputValue1, inputValue2, df):
     similarity = cosine_similarity(tfidf_matrix[:-1], input_vector)
 
     filtered_df['Similarity'] = similarity
-    filtered_df['Recommendation_Metric'] = recommendation_metric(similarity.squeeze(), filtered_df['Rating'])
+    filtered_df['Recommendation_Metric'] = recommendation_metric(filtered_df['Similarity'], filtered_df['Rating'])
     recommended_df = filtered_df.sort_values(by='Recommendation_Metric', ascending=False).head(5)
     
     recommended_recipes_titles = []
