@@ -24,12 +24,14 @@ def recommendation_metric(similarity, rating, alpha=0.5, beta=0.5):
 def recommend1(title, df):
     tfidf_vectorizer = TfidfVectorizer()
     tfidf_matrix = tfidf_vectorizer.fit_transform(df['Title'])
-    similarity = cosine_similarity(tfidf_matrix)
     
     index = df[df['Title'] == title].index[0]
+    
+    input_vector = tfidf_matrix[index]
+    similarity = cosine_similarity(tfidf_matrix, input_vector)
 
-    df['Similarity'] = similarity[index]
-    df['Recommendation_Metric'] = recommendation_metric(similarity[index], df['Rating'])
+    df['Similarity'] = similarity
+    df['Recommendation_Metric'] = recommendation_metric(df['Similarity'], df['Rating'])
     recommended_df = df.sort_values(by='Recommendation_Metric', ascending=False).head(5)
     
     recommended_recipes_titles = []
@@ -61,17 +63,16 @@ def recommend2(inputValue1, inputValue2, df):
         inputValue1_lst = re.split('[, ]+', inputValue1.lower())
         mask = filtered_df.apply(lambda row: not_include(inputValue1_lst, row['Cleaned_Ingredients']), axis=1)
         filtered_df = filtered_df[mask]
-        
+    
+    corpus = filtered_df['Cleaned_Ingredients'].tolist() + [inputValue2]
     tfidf_vectorizer = TfidfVectorizer()
-
-    all_texts = filtered_df['Cleaned_Ingredients'].tolist() + [inputValue2]
-    tfidf_matrix = tfidf_vectorizer.fit_transform(all_texts)
+    tfidf_matrix = tfidf_vectorizer.fit_transform(corpus)
 
     input_vector = tfidf_matrix[-1]
     similarity = cosine_similarity(tfidf_matrix[:-1], input_vector)
 
     filtered_df['Similarity'] = similarity
-    filtered_df['Recommendation_Metric'] = recommendation_metric(similarity.squeeze(), filtered_df['Rating'])
+    filtered_df['Recommendation_Metric'] = recommendation_metric(filtered_df['Similarity'], filtered_df['Rating'])
     recommended_df = filtered_df.sort_values(by='Recommendation_Metric', ascending=False).head(5)
     
     recommended_recipes_titles = []

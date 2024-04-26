@@ -16,7 +16,7 @@ st.header("Recipe Recommendation System")
 with st.container():
     selectValue1 = st.selectbox("Select a recipe from dropdown:", recipe_list)
     
-    if st.button("Show Recommended Recipes with Similar Ingredients"):
+    if st.button("Show Recommended Recipes with Similar Titles"):
         data = pickle.load(open("data.pkl", 'rb'))
         recommended_recipes_titles, recommended_recipes_images, recommended_recipes_stats, recommended_recipes_instructions  = recommend1(selectValue1, data)
         
