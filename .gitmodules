@@ -1,0 +1,3 @@
+[submodule "Evaluation/Benchmark/app"]
+	path = Evaluation/Benchmark/app
+	url = https://github.com/yzhong32/recipe.git
