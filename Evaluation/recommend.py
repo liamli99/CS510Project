@@ -1,11 +1,12 @@
-import numpy as np
-import torch
 
 from rank_bm25 import BM25Okapi
 from gensim.models import Word2Vec
 from transformers import BertTokenizer, BertModel
 
 from sklearn.metrics.pairwise import cosine_similarity
+import numpy as np
+import torch
+import scipy
 
 # BM25
 def recommand1_BM25(title, df):
