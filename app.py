@@ -16,7 +16,7 @@ st.header("Recipe Recommendation System")
 with st.container():
     selectValue1 = st.selectbox("Select a recipe from dropdown:", recipe_list)
     
-    if st.button("Show Recommended Recipes with Similar Titles"):
+    if st.button("Show Recommended Recipes with Similar Ingredients"):
         data = pickle.load(open("data.pkl", 'rb'))
         recommended_recipes_titles, recommended_recipes_images, recommended_recipes_stats, recommended_recipes_instructions  = recommend1(selectValue1, data)
         
@@ -74,9 +74,9 @@ def query(payload):
         return None  
     
 with st.container():
-    inputValue3 = st.text_input("Enter natural query to describe what Ingredients you have and what receipt you like")
+    inputValue3 = st.text_input("Enter natural language to describe the ingredients you would like to cook with:")
     
-    if st.button("Submit your natural query"):
+    if st.button("Show Recommended Recipes with Given Natural Language"):
         data = pickle.load(open("data.pkl", 'rb'))
         API_URL = "https://api-inference.huggingface.co/models/ilsilfverskiold/tech-keywords-extractor"
         headers = {"Authorization": "Bearer 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"}
