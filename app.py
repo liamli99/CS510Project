@@ -61,7 +61,7 @@ with st.container():
 st.markdown("---")                
 
 ####################################################################################################
-# Function 3: Natural Languages Handle
+# Function 3: Show Recommended Recipes with Given Natural Language
 ####################################################################################################
 
 def query(payload):
