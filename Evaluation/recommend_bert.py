@@ -215,13 +215,3 @@ def recommend2_bert(inputValue1, inputValue2, df, embeddings_file='bert_embeddin
         recommended_recipes_instructions.append(row['Instructions'])
     
     return recommended_recipes_titles, recommended_recipes_images, recommended_recipes_stats, recommended_recipes_instructions
-
-if __name__ == '__main__':
-    # print(f"recommend_bert: {recommend1_bert('Thanksgiving Mac and Cheese', data)}")
-    # print(f"recommend_bert: {recommend1_bert('Italian Sausage and Bread Stuffing', data)}")
-
-    # recommended_recipes_titles,_,_,_ = recommend1_bert('Italian Sausage and Bread Stuffing', data)
-    # print(f"recommend_bert: {recommended_recipes_titles}")
-
-    # recommended_recipes_titles,_,_,_ = recommend2_bert('chicken', 'Thanksgiving Mac and Cheese', data)
-    # print(f"recommend_bert: {recommended_recipes_titles}")
